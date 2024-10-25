@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>m3u8 视频播放器</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        video {
+            width: 80%;
+            max-width: 800px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+        input {
+            width: 80%;
+            max-width: 600px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>m3u8 视频播放器</h1>
+    <input type="text" id="videoUrl" placeholder="请输入 m3u8 视频链接">
+    <button id="playButton">播放视频</button>
+    <video id="videoPlayer" controls></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        const video = document.getElementById('videoPlayer');
+        const playButton = document.getElementById('playButton');
+        const videoUrlInput = document.getElementById('videoUrl');
+
+        playButton.addEventListener('click', () => {
+            const videoSrc = videoUrlInput.value.trim();
+            if (!videoSrc) {
+                alert('请提供有效的 m3u8 链接。');
+                return;
+            }
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+                video.addEventListener('loadedmetadata', function () {
+                    video.play();
+                });
+            } else {
+                console.error('不支持播放该格式的视频。');
+            }
+
+            video.addEventListener('error', function() {
+                console.error('视频加载失败，请检查链接或格式。');
+            });
+        });
+    </script>
+
+</body>
+</html>
